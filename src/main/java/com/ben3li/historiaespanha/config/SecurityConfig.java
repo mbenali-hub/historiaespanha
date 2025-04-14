@@ -20,8 +20,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.GET,"/historia-espanha/eventos/**").permitAll()
-            .anyRequest().authenticated()
+            //.requestMatchers(HttpMethod.GET,"/historia-espanha/eventos/**").permitAll()
+            //.requestMatchers(HttpMethod.GET,"/historia-espanha/personajes/**").permitAll()
+            .anyRequest().permitAll()
             
         )
         .csrf(csrf -> csrf.disable())
