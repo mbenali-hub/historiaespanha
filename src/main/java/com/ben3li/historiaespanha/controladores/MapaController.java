@@ -19,26 +19,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MapaController {
 
-    private final MapaEspanhaServiceImpl eventoServiceImpl;
+    private final MapaEspanhaServiceImpl mapaEspanhaServiceImpl;
 
     @GetMapping("/eventos/fecha/{fecha_inicio}")
     public List<Evento> eventosPorFecha(@PathVariable Long fecha_inicio){
-        return eventoServiceImpl.buscarEventosPorFechaInicio(fecha_inicio);
+        return mapaEspanhaServiceImpl.buscarEventosPorFechaInicio(fecha_inicio);
     }
 
     @GetMapping("/eventos/nombre/{nombreEvento}")
     public List<Evento> eventosPorNombreEvento(@PathVariable String nombreEvento){
-        return eventoServiceImpl.buscarEventoPorNombre(nombreEvento);
+        return mapaEspanhaServiceImpl.buscarEventoPorNombre(nombreEvento);
     }
 
     @GetMapping("/eventos/personajes/{nombreEvento}")
     public List<Personaje> personajesEnEvento(@PathVariable String nombreEvento){
-        return eventoServiceImpl.buscarPersonajesDeEvento(nombreEvento);
+        return mapaEspanhaServiceImpl.buscarPersonajesDeEvento(nombreEvento);
     }
 
     @GetMapping("/personajes/{nombrePersonaje}")
     public List<Personaje> personajesPorNombre(@PathVariable String nombrePersonaje){
         System.out.println("eYSNAINDJIASPIDBNASIBDIAbsdihasbfoiabsdofb");
-        return eventoServiceImpl.buscarPersonajePorNombre(nombrePersonaje);
+        return mapaEspanhaServiceImpl.buscarPersonajePorNombre(nombrePersonaje);
     }
 }

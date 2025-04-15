@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 public class Quiz {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private int puntuacion;
