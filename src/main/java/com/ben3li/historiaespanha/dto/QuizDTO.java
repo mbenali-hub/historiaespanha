@@ -3,7 +3,6 @@ package com.ben3li.historiaespanha.dto;
 import java.util.List;
 import java.util.UUID;
 
-import com.ben3li.historiaespanha.entidades.Pregunta;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,5 +17,6 @@ import lombok.NoArgsConstructor;
 public class QuizDTO {
     private UUID id;
     private int puntuacion;
+    private int puntuacionMaxima;
     private List<PreguntaDTO> preguntas;
 }

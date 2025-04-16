@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ben3li.historiaespanha.dto.QuizDTO;
@@ -20,8 +21,8 @@ public class QuizController {
 
     private final QuizHistoriaServiceImpl quizHistoriaServiceImpl;
 
-    @GetMapping("/nuevoQuiz/{epoca}")
-    public QuizDTO nuevoQuiz(@PathVariable String epoca){
+    @GetMapping("/nuevoQuiz")
+    public QuizDTO nuevoQuiz(@RequestParam(required = false) String epoca){
         return quizHistoriaServiceImpl.crearQiuz(epoca);
     }
 

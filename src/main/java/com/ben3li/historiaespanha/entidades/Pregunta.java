@@ -35,7 +35,7 @@ import lombok.Setter;
 @Builder
 public class Pregunta {
     @Id
-    private int id;
+    private Integer id;
     
     @Column(nullable = false)
     private String pregunta;

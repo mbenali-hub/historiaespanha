@@ -30,72 +30,88 @@ public class QuizHistoriaServiceImpl implements QuizHistoriaService{
 
     private final int PREGUNTAS_POR_TEST=15;
     private final PreguntaRepositorio preguntaRepositorio;
-    private final RespuestaRepositorio respuestaRepositorio;
     private final QuizRepositorio quizRepositorio;
-    private List<PreguntaDTO> preguntasObtenidas= new ArrayList<>();
     private final PreguntaMapper preguntaMapper;
-    private final QuizMapper quizMapper;
+
 
     @Override
     public QuizDTO crearQiuz(String epoca) {
         QuizDTO nuevoQuiz=null;
-        List<Pregunta> preguntas=null;
         if(epoca!=null){
             //Obtener 15 preguntas de la bbdd
-            preguntas=buscarPreguntaPorEpoca(epoca);
-            preguntasObtenidas= preguntas.stream()
-                                .map(preguntaMapper::toDto)
-                                .toList();
-            nuevoQuiz = QuizDTO.builder()
-                                .puntuacion(0)
-                                .preguntas(preguntasObtenidas)
-                                .build();
-
+            List<Pregunta> preguntas=buscarPreguntasPorEpoca(epoca);
+            nuevoQuiz = guardarNuevoQuiz(preguntas);
         }
+        else{
+            List<Pregunta> preguntas=buscarPreguntasAleatorias();
+            nuevoQuiz = guardarNuevoQuiz(preguntas);
+        }
+        return nuevoQuiz;
+    }
 
-        Quiz quizEntity = quizMapper.toEntity(nuevoQuiz);
-        quizEntity.setPreguntas(preguntas);
-        
-        Quiz quizGuardado=quizRepositorio.save(quizEntity);
-        nuevoQuiz.setId(quizGuardado.getId());
+
+    private QuizDTO guardarNuevoQuiz(List<Pregunta> preguntas) {
+        Quiz quizGuardado;
+        List<PreguntaDTO> preguntasDTO;
+        QuizDTO nuevoQuiz;
+        preguntasDTO = preguntas.stream()
+                        .map(preguntaMapper::toDto)
+                        .toList();
+
+        Quiz quizEntity = Quiz.builder()
+                        .puntuacion(0)
+                        .puntuacionMaxima(preguntas.size())
+                        .preguntas(preguntas)
+                        .build();
+
+        quizGuardado=quizRepositorio.save(quizEntity);
+        nuevoQuiz=QuizDTO.builder()
+                    .id(quizGuardado.getId())
+                    .puntuacion(0)
+                    .puntuacionMaxima(quizGuardado.getPuntuacionMaxima())
+                    .preguntas(preguntasDTO)
+                    .build();
         return nuevoQuiz;
     }
 
     
     @Override
-    public List<Pregunta> buscarPreguntaPorEpoca(String epoca) {
-        return preguntaRepositorio.findByEpoca(epoca);
+    public List<Pregunta> buscarPreguntasPorEpoca(String epoca) {
+        return preguntaRepositorio.obtenerPreguntasPorEpoca(epoca,PREGUNTAS_POR_TEST);
+    }
+
+    @Override
+    public List<Pregunta> buscarPreguntasAleatorias() {
+        return preguntaRepositorio.obtenerPreguntasAleatorias(PREGUNTAS_POR_TEST);
     }
 
 
     @Override
     public QuizResuelto corregirQuiz(QuizResuelto quizResuelto) {
-        Map<Integer,Integer> respuestasAPreguntas = quizResuelto.getRespuestasAPreguntas();
-        System.out.println("RespuestasPreguntas:   "+respuestasAPreguntas);
-        Map<Integer, Boolean> respuestasCoregidas= new HashMap<>();
+        int respuestasCorrectas=0;
+        Map<Integer,String> respuestasUsuario = quizResuelto.getRespuestasAPreguntas();
+        Map<Integer, Boolean> respuestasCorregidas= new HashMap<>();
         
         Quiz quizGuardado= quizRepositorio.getReferenceById(quizResuelto.getId());
-        List<Pregunta> preguntasQuizGuardado= quizGuardado.getPreguntas();
 
-         Map<Integer, Pregunta> preguntaMap = preguntasQuizGuardado.stream()
+         Map<Integer, Pregunta> preguntaMap = quizGuardado.getPreguntas().stream()
         .collect(Collectors.toMap(Pregunta::getId, Function.identity()));
 
-        for(Map.Entry<Integer,Integer> entry: respuestasAPreguntas.entrySet()){
+        for(Map.Entry<Integer,String> entry: respuestasUsuario.entrySet()){
             Integer preguntaId = entry.getKey();
-            Integer respuestaId = entry.getValue();
+            String respuesta = entry.getValue();
 
             Pregunta pregunta=preguntaMap.get(preguntaId);
-            System.out.println("Preguynta: "+pregunta);
             if(pregunta!=null){
-                Respuesta respuestaObtenida=respuestaRepositorio.findById(respuestaId).orElseThrow();
-                Respuesta respuestaCorrecta = pregunta.getRespuesta();
-    
-                respuestasCoregidas.put(pregunta.getId(), respuestaObtenida.equals(respuestaCorrecta));
-            }
+                boolean esCorrecta=respuesta.equals(pregunta.getRespuesta().getRespuesta());
+                if(esCorrecta) respuestasCorrectas++;
+                respuestasCorregidas.put(pregunta.getId(),esCorrecta);               
+            }          
         }
 
-        quizResuelto.setRespuestasCorregidas(respuestasCoregidas);
-        System.out.println("Respuestas:   "+respuestasCoregidas);
+        quizResuelto.setRespuestasCorregidas(respuestasCorregidas);
+        quizResuelto.setPuntuacion(respuestasCorrectas);
+        quizResuelto.setPuntuacionMaxima(quizGuardado.getPuntuacionMaxima());
         return quizResuelto;
     }
 

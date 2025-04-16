@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PreguntaDTO {
 
+    private Integer id;
     private String pregunta;   
     private String epoca;
     private List<String> opciones;

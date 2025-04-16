@@ -25,7 +25,7 @@ import lombok.Setter;
 @Builder
 public class Respuesta {
     @Id
-    private int id;
+    private Integer id;
     
     @Column(nullable = false)
     @JsonBackReference

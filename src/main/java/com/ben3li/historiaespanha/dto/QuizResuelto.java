@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class QuizResuelto {
     private UUID id;
-    private Map<Integer,Integer> respuestasAPreguntas= new HashMap<>();
+    private int puntuacion;
+    private int puntuacionMaxima;
+    private Map<Integer,String> respuestasAPreguntas= new HashMap<>();
     private Map<Integer,Boolean> respuestasCorregidas= new HashMap<>();
 }
