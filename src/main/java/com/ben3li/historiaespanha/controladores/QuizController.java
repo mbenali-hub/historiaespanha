@@ -1,5 +1,8 @@
 package com.ben3li.historiaespanha.controladores;
 
+import java.net.http.HttpRequest;
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +15,7 @@ import com.ben3li.historiaespanha.dto.QuizDTO;
 import com.ben3li.historiaespanha.dto.QuizResuelto;
 import com.ben3li.historiaespanha.servicios.impl.QuizHistoriaServiceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,8 +26,9 @@ public class QuizController {
     private final QuizHistoriaServiceImpl quizHistoriaServiceImpl;
 
     @GetMapping("/nuevoQuiz")
-    public QuizDTO nuevoQuiz(@RequestParam(required = false) String epoca){
-        return quizHistoriaServiceImpl.crearQiuz(epoca);
+    public QuizDTO nuevoQuiz(@RequestParam(required = false) String epoca, HttpServletRequest request){
+        UUID userId= (UUID)request.getAttribute("userId");
+        return quizHistoriaServiceImpl.crearQiuz(epoca,userId);
     }
 
     @PostMapping("/quizResuelto/{quiz_id}")

@@ -1,9 +1,11 @@
 package com.ben3li.historiaespanha.servicios.impl;
 
+import java.net.http.HttpRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -15,13 +17,16 @@ import com.ben3li.historiaespanha.dto.QuizResuelto;
 import com.ben3li.historiaespanha.entidades.Pregunta;
 import com.ben3li.historiaespanha.entidades.Quiz;
 import com.ben3li.historiaespanha.entidades.Respuesta;
+import com.ben3li.historiaespanha.entidades.Usuario;
 import com.ben3li.historiaespanha.mappers.PreguntaMapper;
 import com.ben3li.historiaespanha.mappers.QuizMapper;
 import com.ben3li.historiaespanha.repositorios.PreguntaRepositorio;
 import com.ben3li.historiaespanha.repositorios.QuizRepositorio;
 import com.ben3li.historiaespanha.repositorios.RespuestaRepositorio;
+import com.ben3li.historiaespanha.repositorios.UsuarioRepositorio;
 import com.ben3li.historiaespanha.servicios.QuizHistoriaService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -30,27 +35,28 @@ public class QuizHistoriaServiceImpl implements QuizHistoriaService{
 
     private final int PREGUNTAS_POR_TEST=15;
     private final PreguntaRepositorio preguntaRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
     private final QuizRepositorio quizRepositorio;
     private final PreguntaMapper preguntaMapper;
 
 
     @Override
-    public QuizDTO crearQiuz(String epoca) {
+    public QuizDTO crearQiuz(String epoca,UUID userId) {
         QuizDTO nuevoQuiz=null;
         if(epoca!=null){
             //Obtener 15 preguntas de la bbdd
             List<Pregunta> preguntas=buscarPreguntasPorEpoca(epoca);
-            nuevoQuiz = guardarNuevoQuiz(preguntas);
+            nuevoQuiz = guardarNuevoQuiz(preguntas,userId);
         }
         else{
             List<Pregunta> preguntas=buscarPreguntasAleatorias();
-            nuevoQuiz = guardarNuevoQuiz(preguntas);
+            nuevoQuiz = guardarNuevoQuiz(preguntas,userId);
         }
         return nuevoQuiz;
     }
 
 
-    private QuizDTO guardarNuevoQuiz(List<Pregunta> preguntas) {
+    private QuizDTO guardarNuevoQuiz(List<Pregunta> preguntas,UUID userId) {
         Quiz quizGuardado;
         List<PreguntaDTO> preguntasDTO;
         QuizDTO nuevoQuiz;
@@ -58,9 +64,12 @@ public class QuizHistoriaServiceImpl implements QuizHistoriaService{
                         .map(preguntaMapper::toDto)
                         .toList();
 
+       
+        Usuario usuario=usuarioRepositorio.findById(userId).orElseThrow(()-> new RuntimeException("usuario no encontrado"));
         Quiz quizEntity = Quiz.builder()
                         .puntuacion(0)
                         .puntuacionMaxima(preguntas.size())
+                        .usuario(usuario)
                         .preguntas(preguntas)
                         .build();
 
