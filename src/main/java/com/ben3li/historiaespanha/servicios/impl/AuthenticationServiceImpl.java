@@ -4,6 +4,8 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +26,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final long jwtexpiracion=430000l;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     @Override
     public UserDetails autenticar(String email, String password) {
@@ -52,7 +57,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private Key getKeyCodificada(){
-        byte[] keyEnBytes="d4f8a9c4b1e2d83e1a6f7c9a02d1b7e3".getBytes();
+        System.out.println("La clave recuperada es : "+ secretKey);
+        byte[] keyEnBytes=secretKey.getBytes();
          return Keys.hmacShaKeyFor(keyEnBytes);
     }
 
